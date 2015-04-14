@@ -22,19 +22,18 @@ void setup() {
  
 // loop forever
 void loop() {
-  buttonState = digitalRead(buttonPin);  // get button state
+  buttonState = digitalRead(buttonPin);   // get button state
   if (buttonState == HIGH) {
-    digitalWrite(ledPin, HIGH);     // button pressed, turn on led
+    digitalWrite(ledPin, HIGH);           // button pressed, turn on led
   }
   else if (buttonState == LOW) {
-    digitalWrite(ledPin, LOW);           // button released, turn off led
+    digitalWrite(ledPin, LOW);            // button released, turn off led
   }
   
-  
-  ledState = digitalRead(ledPin);
+  ledState = digitalRead(ledPin);         // get led state
   
   if (ledState != oldState) {
-    Serial.println(ledState);
+    Serial.println(ledState);             // print out led state only if it changed
     oldState = ledState;
   }
 }
