@@ -1,6 +1,6 @@
 /*
   Pushbutton
-  Reads a VEX bumber switch (or pushbutton) a d turns on an LED.
+  Reads a VEX bumber switch (or pushbutton) and turns on an LED.
  
   Patrick Kubiak
  */
