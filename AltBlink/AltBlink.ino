@@ -1,6 +1,6 @@
 /*
   AltBlink
-  Turns on an LED on for one second, then off for one second, repeatedly.
+  Alternates between two LEDs every second.
  
   Patrick Kubiak
  */
