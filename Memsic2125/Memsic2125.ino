@@ -4,7 +4,7 @@
   Reads input from a Memsic 2125 two-axis accelerometer.
   Converts pulse outputs into acceleration in milli-g's 
   (1/1000 of earth's gravity) and prints them out.
-  Displays center, front, back, left, right position LEDs.
+  Displays center, front, back, left, and right position LEDs.
   
   Patrick Kubiak
  */
