@@ -1,5 +1,5 @@
 /*
-  Memsic2125
+  AccelPosition
   
   Reads input from a Memsic 2125 two-axis accelerometer.
   Converts pulse outputs into acceleration in milli-g's 

@@ -26,3 +26,4 @@ void loop() {
   digitalWrite(ledB, HIGH);     // turn the LED B on
   delay(1000);                  // wait for a second
 }
+
