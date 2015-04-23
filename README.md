@@ -33,11 +33,15 @@ Arduino code
 </tr>
 <tr>
 <td>MicroServoPot</td>
-<td>Control a servo motor using a potentiometer.</td>
+<td>Control a servo motor using a potentiometer with accurate positioning.</td>
 </tr>
 <tr>
 <td>Push Button</td>
 <td>Reads a VEX bumber switch (or pushbutton) and turns on an LED.</td>
+</tr>
+<tr>
+<td>ServoPot</td>
+<td>Control a servo motor using a potentiometer.</td>
 </tr>
 <tr>
 <td>Two Axis Accelerometer</td>
