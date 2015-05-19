@@ -23,6 +23,7 @@ SoftwareSerial mySerial = SoftwareSerial(255, lcdPin);
 SimpleTimer myTimer;
 int timerId;                                  // reference to clock timer
 
+// Configure display and timer.
 void setup() {
   pinMode(lcdPin, OUTPUT);                           // set lcdPin as output to LCD
   mySerial.begin(9600);                              // start serial
@@ -31,6 +32,7 @@ void setup() {
   delay(100);
 }
 
+// Run the timer.
 void loop() {
   myTimer.run();    // run the timer
 }
@@ -126,7 +128,7 @@ void onTimerEnd()
   Serial.println("Timer done!");        // console debug
 }
 
-// Setup time to count
+// Setup time to count.
 void setupTime()
 {
   seconds = (hMax * 60 * 60) + (mMax * 60) + sMax;   // seconds left
