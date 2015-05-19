@@ -32,6 +32,10 @@ Arduino code
 <td>Turns on an LED on for one second, then off for one second, repeatedly.</td>
 </tr>
 <tr>
+<td>Count Down to Graduation</td>
+<td>LCD count down to graduation displayed in days, hours, minutes, and seconds.</td>
+</tr>
+<tr>
 <td>MicroServoPot</td>
 <td>Control a servo motor using a potentiometer with accurate positioning.</td>
 </tr>
