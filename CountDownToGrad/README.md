@@ -2,4 +2,4 @@ Count Down to Graduation
 ========================
 
 Requires the SimpleTimer Arduino library: http://playground.arduino.cc/Code/SimpleTimer
-![Alt text](CountDownToGrad.jpg?raw=true "In Action" = 100x200)
+<img src="CountDownToGrad.jpg" alt="DrawingIn Action" style="width: 100px; height: 200px;"/>
