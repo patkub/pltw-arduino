@@ -12,15 +12,15 @@ Arduino code
 </thead>
 <tbody>
 <tr>
-<td>AccelMotor</td>
+<td>Accelerometer Motor</td>
 <td>Use an accelerometer to drive a motor.</td>
 </tr>
 <tr>
-<td>AccelPosition</td>
+<td>Accelerometer Position</td>
 <td>Display position and acceleration of an accelerometer.</td>
 </tr>
 <tr>
-<td>AltBlink</td>
+<td>Alternate Blink</td>
 <td>Alternates between two LEDs every second.</td>
 </tr>
 <tr>
@@ -36,7 +36,11 @@ Arduino code
 <td>LCD count down to graduation displayed in days, hours, minutes, and seconds.</td>
 </tr>
 <tr>
-<td>MicroServoPot</td>
+<td>Micro Servo Pot</td>
+<td>Control a servo motor using a potentiometer with accurate positioning.</td>
+</tr>
+<tr>
+<td>Morra Game</td>
 <td>Control a servo motor using a potentiometer with accurate positioning.</td>
 </tr>
 <tr>
@@ -44,7 +48,7 @@ Arduino code
 <td>Reads a VEX bumber switch (or pushbutton) and turns on an LED.</td>
 </tr>
 <tr>
-<td>ServoPot</td>
+<td>Servo Potentiometer</td>
 <td>Control a servo motor using a potentiometer.</td>
 </tr>
 <tr>
