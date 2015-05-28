@@ -1,12 +1,12 @@
 #include <SoftwareSerial.h>
 
 //--- SETTINGS ---
-const int lcdPin = 2;                    // pin for LCD
-const int btnHand = 8;                   // pin for hand button
-const int btnGuess = 9;                  // pin for guess button
-const int btnPlay = 10;                  // pin for play button
-
 const String strTitle = "MORRA";         // title - all phrases have 16 character limit
+const int lcdPin = 2;                    // pin for LCD
+const int btnHand = 4;                   // pin for hand button
+const int btnGuess = 3;                  // pin for guess button
+const int btnPlay = 5;                   // pin for play button
+
 const String strNoWinner = "No winner";
 const String strTie = "It's a tie!";
 const String strPlayerWins = "You win round!";
@@ -26,17 +26,17 @@ String strRoundResult = "";
 
 // keep track of button changes
 int oldBtnStateHand, oldBtnStateGuess, oldBtnStatePlay;
-int showResult = 0;                      // result to show (1, 2, 3, 4, or 0 for none)
+int showResult = 0;                     // result to show (1, 2, 3, 4, or 0 for none)
 
 SoftwareSerial mySerial = SoftwareSerial(255, lcdPin);
 
 void setup() {
-  pinMode(btnHand, INPUT);               // set hand button pin as input
-  pinMode(btnGuess, INPUT);              // set guess button pin as input
-  pinMode(btnPlay, INPUT);               // set play button pin as input
-  mySerial.begin(9600);                  // start serial
-  mySerial.write(22);                    // no cursor
-  mySerial.write(12);                    // clear
+  pinMode(btnHand, INPUT);     // set hand button pin as input
+  pinMode(btnGuess, INPUT);    // set guess button pin as input
+  pinMode(btnPlay, INPUT);     // set play button pin as input
+  mySerial.begin(9600);        // start serial
+  mySerial.write(22);          // no cursor
+  mySerial.write(12);          // clear
   updateLCD();
   delay(100);
 }
@@ -60,7 +60,7 @@ void loop() {
   else if (btnStatePlay != oldBtnStatePlay && showResult == 1) {
     showResult = 2;
   }
-  else {    
+  else if (showResult == 0) {    
     if (btnStateHand == HIGH && btnStateHand != oldBtnStateHand) {
       nextHand();
       updateLCD();
@@ -187,14 +187,14 @@ void displayRoundStats(int compHand, int compGuess) {
   
   // display round stats
   int total = playerHand + compHand;    // get total of both hands
-  mySerial.print("CH: " + String(compHand) + " CG: " + String(compGuess) + " T: " + String(total));
+  mySerial.print("CH:" + String(compHand) + " CG:" + String(compGuess) + " T:" + String(total));
   showResult = 1;
 }
 
 // display result of round
 void displayResultOfRound() {
   showHeader();
-  mySerial.print(strRoundResult);      // display result of round
+  mySerial.print(strRoundResult);    // display result of round
 }
 
 // display header with score
