@@ -41,7 +41,7 @@ Arduino code
 </tr>
 <tr>
 <td>Morra Game</td>
-<td>Control a servo motor using a potentiometer with accurate positioning.</td>
+<td>Play against the computer by throwing hands and guessing the total number of fingers.</td>
 </tr>
 <tr>
 <td>Push Button</td>
