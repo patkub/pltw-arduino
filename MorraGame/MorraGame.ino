@@ -23,10 +23,11 @@ int compScore = 0;
 
 // result of round
 String strRoundResult = "";
+String strWinner = "";
 
 // keep track of button changes
 int oldBtnStateHand, oldBtnStateGuess, oldBtnStatePlay;
-int displayState = 0;                     // state of display (Stage: 0, 1 Results: 2, 3, 4, 5, 6)
+int displayState = 0;                     // state of display (Stage: 0, 1 Results: 2, 3, 4, 5, 6, 7)
 int roundsToPlay = 1;                     // number of rounds to play this game
 int roundsPlayed = 0;                     // number of rounds played so far
 int winsNeeded = 1;                       // number of round wins needed to win game
@@ -49,26 +50,37 @@ void loop() {
   int btnStateGuess = digitalRead(btnGuess);
   int btnStatePlay = digitalRead(btnPlay);
   
-  if (btnStatePlay != oldBtnStatePlay && displayState == 6) {
-    resetScore();
+  if (btnStatePlay != oldBtnStatePlay && displayState == 7) {
+    // game is over, so reset
+	resetScore();
     showRoundsToPlay();
     displayState = 0;
   }
+  else if (btnStatePlay != oldBtnStatePlay && displayState == 6) {
+    // wait for next play button press after showing game winner
+	displayState = 7;
+  }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 5) {
-    updateLCD();
-    displayState = 1;
+    // show game winner and wait for next play button press
+	showHeaderNoScore();
+    mySerial.print(strWinner);
+    displayState = 6;
   }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 4) {
-    displayGameWinner();
+    // determine if the game is over and wait for next play button press
+	displayState = getGameWinner();
   }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 3) {
-    displayResultOfRound();
+    // show round results and wait for next play button press
+	displayResultOfRound();
     displayState = 4;
   }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 2) {
+	// wait for next play button press after showing round stats
     displayState = 3;
   }
   else if (displayState == 1) {
+	// handle hand, guess, and play buttons during a round
     if (btnStateHand == HIGH && btnStateHand != oldBtnStateHand) {
       nextHand();
       updateLCD();
@@ -82,6 +94,7 @@ void loop() {
     }
   }
   else if (displayState == 0) {
+	// determine rounds to play
     if (btnStateHand == HIGH && btnStateHand != oldBtnStateHand && roundsToPlay > 1) {
       roundsToPlay -= 2;
       showRoundsToPlay();
@@ -97,6 +110,8 @@ void loop() {
     }
   }
   
+  // update button states
+  
   if (btnStateHand != oldBtnStateHand) {
     oldBtnStateHand = btnStateHand;
   }
@@ -108,6 +123,8 @@ void loop() {
   if (btnStatePlay != oldBtnStatePlay) {
     oldBtnStatePlay = btnStatePlay;
   }
+  
+  delay(100);
 }
 
 // increment player hand
@@ -172,6 +189,7 @@ void playRound() {
     }
   }
   
+  // increment rounds played and display stats
   roundsPlayed++;
   displayRoundStats(compHand, compGuess);
 }
@@ -224,22 +242,20 @@ void displayResultOfRound() {
 }
 
 // check if the game is over
-void displayGameWinner() {
-  int tempState = 6;   // assume winner
+int getGameWinner() {
+  int tempState = 5;   // assume winner
   
   if (playerScore == winsNeeded) {
-    showHeaderNoScore();
-    mySerial.print("Player Won " + String(playerScore) + "-" + String(compScore));
+    strWinner = "Player Won " + String(playerScore) + "-" + String(compScore);
   }
   else if (compScore == winsNeeded) {
-    showHeaderNoScore();
-    mySerial.print("CPU won " + String(compScore) + "-" + String(playerScore));
+    strWinner = "CPU won " + String(compScore) + "-" + String(playerScore);
   }
   else {
-    tempState = 5;    // no winner
+    tempState = 0;    // no winner
   }
   
-  displayState = tempState;
+  return tempState;
 }
 
 // display header with score
@@ -266,4 +282,3 @@ void resetScore()
   playerScore = 0;
   compScore = 0; 
 }
-
