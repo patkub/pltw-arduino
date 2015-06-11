@@ -52,35 +52,35 @@ void loop() {
   
   if (btnStatePlay != oldBtnStatePlay && displayState == 7) {
     // game is over, so reset
-	resetScore();
+    resetGame();
     showRoundsToPlay();
     displayState = 0;
   }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 6) {
     // wait for next play button press after showing game winner
-	displayState = 7;
+    displayState = 7;
   }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 5) {
     // show game winner and wait for next play button press
-	showHeaderNoScore();
+    showHeaderNoScore();
     mySerial.print(strWinner);
     displayState = 6;
   }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 4) {
     // determine if the game is over and wait for next play button press
-	displayState = getGameWinner();
+    displayState = getGameWinner();
   }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 3) {
     // show round results and wait for next play button press
-	displayResultOfRound();
+    displayResultOfRound();
     displayState = 4;
   }
   else if (btnStatePlay != oldBtnStatePlay && displayState == 2) {
-	// wait for next play button press after showing round stats
+    // wait for next play button press after showing round stats
     displayState = 3;
   }
   else if (displayState == 1) {
-	// handle hand, guess, and play buttons during a round
+    // handle hand, guess, and play buttons during a round
     if (btnStateHand == HIGH && btnStateHand != oldBtnStateHand) {
       nextHand();
       updateLCD();
@@ -94,7 +94,7 @@ void loop() {
     }
   }
   else if (displayState == 0) {
-	// determine rounds to play
+    // determine rounds to play
     if (btnStateHand == HIGH && btnStateHand != oldBtnStateHand && roundsToPlay > 1) {
       roundsToPlay -= 2;
       showRoundsToPlay();
@@ -276,9 +276,12 @@ void showHeaderNoScore() {
   mySerial.write(148);   // new line
 }
 
-// reset the score
-void resetScore()
+// reset the game
+void resetGame()
 {
   playerScore = 0;
-  compScore = 0; 
+  compScore = 0;
+  roundsToPlay = 1;
+  roundsPlayed = 0;
+  winsNeeded = 1;
 }
