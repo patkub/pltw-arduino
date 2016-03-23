@@ -37,8 +37,8 @@ void setup() {
   setupTime();                                            // setup time left
   delay(100);
   
-  // pad title string with 17 whitespaces in the front
-  for (int i = 0; i < 17; i++) {
+  // pad title string with 16 whitespaces in the front
+  for (int i = 0; i < 16; i++) {
      strTitle = " " + strTitle;
   }
 }
