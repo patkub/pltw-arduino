@@ -2,8 +2,8 @@
 #include <SimpleTimer.h>
 
 //--- SETTINGS ---
-String strTitle = " 2016 GRADUATION";         // title - must be 16 characters, add padding to front
-const String strGrad = "CONGRATS GRADS!";     // timer done message - max 16 characters
+const String strTitle = "2016 GRADUATION";    // title - must be a multiple of 16 characters
+const String strGrad = "CONGRATS GRADS!";     // timer done message - must be a multiple of 16 characters
 const int lcdPin = 2;                         // pin for LCD
 
 // time to count down from
@@ -25,21 +25,36 @@ SoftwareSerial mySerial = SoftwareSerial(255, lcdPin);
 SimpleTimer myTimer;
 int timerId, timerId2, timerId3;                          // reference to clock timer, light timer, and title timer
 String strTime, strLine2;
+String strTitleDisplay = strTitle;
+String strGradDisplay = strGrad;
+boolean bTimerDone = false;
 
 // Configure display and timer.
 void setup() {
   pinMode(lcdPin, OUTPUT);                                // set lcdPin as output to LCD
   pinMode(onBoardLEDPin, OUTPUT);                         // set onBoardLEDPin as output to LCD
   mySerial.begin(9600);                                   // start serial
-  timerId = myTimer.setInterval(1000, modifyClock);       // update clock every 1 sec
+  mySerial.write(22);                                     // no cursor
+  timerId = myTimer.setInterval(1000, updateClock);       // update clock time every 1 sec
   timerId2 = myTimer.setInterval(500, flashLED);          // flash light every 0.5 sec
-  timerId3 = myTimer.setInterval(500, updateTitle);       // update title every 0.5 sec
+  timerId3 = myTimer.setInterval(350, updateLCD);         // update lcd every 0.35 sec
   setupTime();                                            // setup time left
   delay(100);
   
   // pad title string with 16 whitespaces in the front
-  for (int i = 0; i < 16; i++) {
-     strTitle = " " + strTitle;
+  int padding = strTitle.length() % 16;
+  
+  // scroll left to right
+  for (int i = 0; i < padding; i++) {
+     strTitleDisplay = " " + strTitleDisplay;
+  }
+  
+  // pad title string with 16 whitespaces in the front
+  padding = strGrad.length() % 16;
+  
+  // scroll left to right
+  for (int i = 0; i < padding; i++) {
+     strGradDisplay = " " + strGradDisplay;
   }
 }
 
@@ -48,11 +63,13 @@ void loop() {
   myTimer.run();    // run the timer
 }
 
-// Modify clock display.
-void modifyClock() {
-  double s;
+// Update clock counter.
+void updateClock() {
+  if (bTimerDone) {
+   return; 
+  }
   
-  seconds--;  //update seconds
+  seconds--;  // update seconds
   
   if (seconds <= 0)
   {
@@ -67,27 +84,7 @@ void modifyClock() {
   
   if (d < 0) {
     // timer done
-    myTimer.disable(timerId);
-    myTimer.disable(timerId2);
-    myTimer.disable(timerId3);
     onTimerEnd();
-  }
-  else {
-    mySerial.write(22);                   // no cursor
-    mySerial.write(12);                   // clear
-    mySerial.println(strTitle);           // first line, display title
-    mySerial.write(148);                  // new line
-    
-    int spaceCount = 16 - strTime.length() - 2;
-    String strSpace = "";
-    for (int i = 0; i < spaceCount; i++) {
-      strSpace += " ";
-    }
-    
-    strLine2 = strTime + strSpace + "PK";
-    
-    mySerial.print(strLine2);      // second line, display time and initials
-    Serial.println("Time: " + strTime);   // console debug
   }
 }
 
@@ -101,24 +98,58 @@ void flashLED() {
   }
 }
 
-void updateTitle() {
-  strTitle = strTitle.charAt(strTitle.length() - 1) + strTitle.substring(0, strTitle.length() - 1);
+// move the cursor to a specific place
+// e.g.: cursorSet(3,2) sets the cursor to x = 3 and y = 2
+void cursorSet(int xpos, int ypos){  
+  Serial.write(254);
+  Serial.write(71);               
+  Serial.write(xpos);   //Column position   
+  Serial.write(ypos); //Row position 
+} 
+
+void updateLCD() {
+  // scroll left to right
+  strTitleDisplay = strTitleDisplay.charAt(strTitleDisplay.length() - 1) + strTitleDisplay.substring(0, strTitleDisplay.length() - 1);
   
-  mySerial.write(22);                   // no cursor
-  mySerial.write(12);                   // clear
-  mySerial.println(strTitle);           // first line, display title
-  mySerial.write(148);                  // new line
-  
-  int spaceCount = 16 - strTime.length() - 2;
-  String strSpace = "";
-  for (int i = 0; i < spaceCount; i++) {
-    strSpace += " ";
+  if (bTimerDone) {
+    strGradDisplay = strGradDisplay.charAt(strGradDisplay.length() - 1) + strGradDisplay.substring(0, strGradDisplay.length() - 1);
   }
   
-  strLine2 = strTime + strSpace + "PK";
-  
-  mySerial.print(strLine2);      // second line, display time and initials
-  Serial.println("Time: " + strTime);   // console debug
+  // first line, display title
+  if (bTimerDone) {
+     mySerial.print(strGradDisplay);       // first line, display congrats
+     mySerial.write(148);                  // new line
+     
+     int spaceCount = 16 - strTime.length() - 2;
+     String strSpace = "";
+     for (int i = 0; i < spaceCount; i++) {
+       strSpace += " ";
+     }     
+     
+     // format DD:HH:MM:SS
+     String strD = printDigits(0, true);
+     String strH = printDigits(0, true);
+     String strM = printDigits(0, true);
+     String strS = printDigits(0, false);
+     strTime = strD+strH+strM+strS;
+     
+     // second line, display time and initials
+     strLine2 = strTime + strSpace + "PK";
+     mySerial.print(strLine2);
+     Serial.println("Time: " + strTime);   // console debug
+  } else {
+     mySerial.println(strTitleDisplay);
+     int spaceCount = 16 - strTime.length() - 2;
+     String strSpace = "";
+     for (int i = 0; i < spaceCount; i++) {
+       strSpace += " ";
+     }
+     
+     // second line, display time and initials
+     strLine2 = strTime + strSpace + "PK";
+     mySerial.print(strLine2);
+     Serial.println("Time: " + strTime);   // console debug
+  }
 }
 
 // Get time left in DD:HH:MM:SS format.
@@ -135,11 +166,12 @@ String getClockTime(int daysLeft) {
   m -= h * 60;
   
   // format DD:HH:MM:SS
-  String strD = printDigits(daysLeft, true);
-  String strH = printDigits(h, true);
-  String strM = printDigits(m, true);
-  String strS = printDigits((int)s, false);
-  return strD+strH+strM+strS;
+  return formateClockTime(daysLeft, h, m, s);
+}
+
+// format DD:HH:MM:SS
+String formateClockTime(int days, int hours, int minutes, int seconds) {
+  return printDigits(days, true) + printDigits(hours, true) + printDigits(minutes, true) + printDigits(seconds, false);
 }
 
 /*
@@ -164,11 +196,10 @@ String printDigits(int digits, boolean bColon) {
 // Timer is done.
 void onTimerEnd()
 {
-  mySerial.write(12);                   // clear
-  mySerial.println(strTitle);           // first line, display title
-  mySerial.write(148);                  // new line
-  mySerial.print(strGrad);              // second line, display congrats
-  Serial.println("Timer done!");        // console debug
+    // disable timers
+    myTimer.disable(timerId2);
+    mySerial.write(12);                   // clear
+    bTimerDone = true;
 }
 
 // Setup time to count.
