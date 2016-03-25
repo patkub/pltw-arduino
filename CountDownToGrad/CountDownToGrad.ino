@@ -2,12 +2,13 @@
 #include <SimpleTimer.h>
 
 //--- SETTINGS ---
-const String strTitle = "2016 GRADUATION";    // title - must be a multiple of 16 characters
+const String strTitle = "2016 GRADUATION www.antuple.net/projects/";    // title - must be a multiple of 16 characters
 const String strGrad = "CONGRATS GRADS!";     // timer done message - must be a multiple of 16 characters
 const int lcdPin = 2;                         // pin for LCD
+const int scrollDirection = 0;                // direction to scroll text in, 0 = right to left, 1 = left to right
 
 // time to count down from
-const int dMax = 74;                          // days
+const int dMax = 70;                          // days
 const int hMax = 0;                           // hours
 const int mMax = 0;                           // minutes
 const int sMax = 0;                           // seconds
@@ -41,20 +42,32 @@ void setup() {
   setupTime();                                            // setup time left
   delay(100);
   
-  // pad title string with 16 whitespaces in the front
+  // pad title string with 16 whitespaces
   int padding = strTitle.length() % 16;
   
-  // scroll left to right
+  // scroll title
   for (int i = 0; i < padding; i++) {
-     strTitleDisplay = " " + strTitleDisplay;
+     if (scrollDirection == 0) {
+       // scroll text right to left
+       strTitleDisplay = " " + strTitleDisplay;
+     } else if (scrollDirection == 1) {
+       // scroll text left to right
+       strTitleDisplay = strTitleDisplay + " ";
+     }
   }
   
-  // pad title string with 16 whitespaces in the front
+  // pad graduation string with 16 whitespaces
   padding = strGrad.length() % 16;
   
-  // scroll left to right
+  // scroll timer done message
   for (int i = 0; i < padding; i++) {
-     strGradDisplay = " " + strGradDisplay;
+    if (scrollDirection == 0) {
+       // scroll text right to left
+       strGradDisplay = " " + strGradDisplay;
+     } else if (scrollDirection == 1) {
+       // scroll text left to right
+       strGradDisplay = strGradDisplay + " ";
+     }
   }
 }
 
@@ -108,47 +121,51 @@ void cursorSet(int xpos, int ypos){
 } 
 
 void updateLCD() {
-  // scroll left to right
-  strTitleDisplay = strTitleDisplay.charAt(strTitleDisplay.length() - 1) + strTitleDisplay.substring(0, strTitleDisplay.length() - 1);
-  
   if (bTimerDone) {
-    strGradDisplay = strGradDisplay.charAt(strGradDisplay.length() - 1) + strGradDisplay.substring(0, strGradDisplay.length() - 1);
-  }
-  
-  // first line, display title
-  if (bTimerDone) {
-     mySerial.print(strGradDisplay);       // first line, display congrats
-     mySerial.write(148);                  // new line
-     
-     int spaceCount = 16 - strTime.length() - 2;
-     String strSpace = "";
-     for (int i = 0; i < spaceCount; i++) {
-       strSpace += " ";
-     }     
-     
-     // format DD:HH:MM:SS
-     String strD = printDigits(0, true);
-     String strH = printDigits(0, true);
-     String strM = printDigits(0, true);
-     String strS = printDigits(0, false);
-     strTime = strD+strH+strM+strS;
-     
-     // second line, display time and initials
-     strLine2 = strTime + strSpace + "PK";
-     mySerial.print(strLine2);
-     Serial.println("Time: " + strTime);   // console debug
+    if (scrollDirection == 0) {
+      // scroll text right to left
+      strGradDisplay = strGradDisplay.substring(1, strGradDisplay.length()) + strGradDisplay.charAt(0);
+    } else if (scrollDirection == 1) {
+      // scroll text left to right
+      strGradDisplay = strGradDisplay.charAt(strGradDisplay.length() - 1) + strGradDisplay.substring(0, strGradDisplay.length() - 1);
+    }
+    
+    mySerial.print(strGradDisplay);       // first line, display congrats
+    mySerial.write(148);                  // new line
+    
+    int spaceCount = 16 - strTime.length() - 2;
+    String strSpace = "";
+    for (int i = 0; i < spaceCount; i++) {
+      strSpace += " ";
+    }     
+    
+    // format time in DD:HH:MM:SS
+    strTime = formateClockTime(0, 0, 0, 0);
+    
+    // second line, display time and initials
+    strLine2 = strTime + strSpace + "PK";
+    mySerial.print(strLine2);
+    Serial.println("Time: " + strTime);   // console debug
   } else {
-     mySerial.println(strTitleDisplay);
-     int spaceCount = 16 - strTime.length() - 2;
-     String strSpace = "";
-     for (int i = 0; i < spaceCount; i++) {
-       strSpace += " ";
-     }
-     
-     // second line, display time and initials
-     strLine2 = strTime + strSpace + "PK";
-     mySerial.print(strLine2);
-     Serial.println("Time: " + strTime);   // console debug
+    if (scrollDirection == 0) {
+      // scroll text right to left
+      strTitleDisplay = strTitleDisplay.substring(1, strTitleDisplay.length()) + strTitleDisplay.charAt(0);
+    } else if (scrollDirection == 1) {
+      // scroll text left to right
+      strTitleDisplay = strTitleDisplay.charAt(strTitleDisplay.length() - 1) + strTitleDisplay.substring(0, strTitleDisplay.length() - 1);
+    }
+    
+    mySerial.println(strTitleDisplay);
+    int spaceCount = 16 - strTime.length() - 2;
+    String strSpace = "";
+    for (int i = 0; i < spaceCount; i++) {
+      strSpace += " ";
+    }
+    
+    // second line, display time and initials
+    strLine2 = strTime + strSpace + "PK";
+    mySerial.print(strLine2);
+    Serial.println("Time: " + strTime);   // console debug
   }
 }
 
@@ -169,7 +186,7 @@ String getClockTime(int daysLeft) {
   return formateClockTime(daysLeft, h, m, s);
 }
 
-// format DD:HH:MM:SS
+// format time in DD:HH:MM:SS
 String formateClockTime(int days, int hours, int minutes, int seconds) {
   return printDigits(days, true) + printDigits(hours, true) + printDigits(minutes, true) + printDigits(seconds, false);
 }
