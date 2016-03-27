@@ -25,7 +25,7 @@ int days = 0;                                 // days count
 SoftwareSerial mySerial = SoftwareSerial(255, lcdPin);
 SimpleTimer myTimer;
 int timerId, timerId2, timerId3;                          // reference to clock timer, light timer, and title timer
-String strTime, strLine2;
+String strTime;
 String strTitleDisplay = strTitle;
 String strGradDisplay = strGrad;
 boolean bTimerDone = false;
@@ -101,6 +101,7 @@ void updateClock() {
   }
 }
 
+// Flash onboard LED.
 void flashLED() {
   int ledState = digitalRead(onBoardLEDPin);
   if (ledState == HIGH) {
@@ -111,65 +112,64 @@ void flashLED() {
   }
 }
 
-// move the cursor to a specific place
-// e.g.: cursorSet(3,2) sets the cursor to x = 3 and y = 2
-void cursorSet(int xpos, int ypos){  
-  Serial.write(254);
-  Serial.write(71);               
-  Serial.write(xpos);   //Column position   
-  Serial.write(ypos); //Row position 
-} 
-
+// Update display.
 void updateLCD() {
   if (bTimerDone) {
-    if (scrollDirection == 0) {
-      // scroll text right to left
-      strGradDisplay = strGradDisplay.substring(1, strGradDisplay.length()) + strGradDisplay.charAt(0);
-    } else if (scrollDirection == 1) {
-      // scroll text left to right
-      strGradDisplay = strGradDisplay.charAt(strGradDisplay.length() - 1) + strGradDisplay.substring(0, strGradDisplay.length() - 1);
-    }
-    
-    mySerial.print(strGradDisplay);       // first line, display congrats
-    mySerial.write(148);                  // new line
-    
-    int spaceCount = 16 - strTime.length() - 2;
-    String strSpace = "";
-    for (int i = 0; i < spaceCount; i++) {
-      strSpace += " ";
-    }     
-    
-    // format time in DD:HH:MM:SS
-    strTime = formateClockTime(0, 0, 0, 0);
+    // first line, display congrats
+    strGradDisplay = scrollText(strGradDisplay);
+    mySerial.println(strGradDisplay);
     
     // second line, display time and initials
-    strLine2 = strTime + strSpace + "PK";
-    mySerial.print(strLine2);
-    Serial.println("Time: " + strTime);   // console debug
+    displayTimeAndInitials();
   } else {
-    if (scrollDirection == 0) {
-      // scroll text right to left
-      strTitleDisplay = strTitleDisplay.substring(1, strTitleDisplay.length()) + strTitleDisplay.charAt(0);
-    } else if (scrollDirection == 1) {
-      // scroll text left to right
-      strTitleDisplay = strTitleDisplay.charAt(strTitleDisplay.length() - 1) + strTitleDisplay.substring(0, strTitleDisplay.length() - 1);
-    }
-    
+    // first line, display title
+    strTitleDisplay = scrollText(strTitleDisplay);
     mySerial.println(strTitleDisplay);
-    int spaceCount = 16 - strTime.length() - 2;
-    String strSpace = "";
-    for (int i = 0; i < spaceCount; i++) {
-      strSpace += " ";
-    }
     
     // second line, display time and initials
-    strLine2 = strTime + strSpace + "PK";
-    mySerial.print(strLine2);
-    Serial.println("Time: " + strTime);   // console debug
+    displayTimeAndInitials();
   }
 }
 
-// Get time left in DD:HH:MM:SS format.
+/*
+ * Scroll text.
+ * Right to left - first character in the string is moved to the end.
+ * Left to Right - last character in the string is moved to the front.
+ *
+ * @param strText - String to scroll
+ * @return next string to display.
+ */
+String scrollText(String strText) {
+  if (scrollDirection == 0) {
+    // scroll text right to left
+    return strText.substring(1, strText.length()) + strText.charAt(0);
+  } else if (scrollDirection == 1) {
+    // scroll text left to right
+    return strText.charAt(strText.length() - 1) + strText.substring(0, strText.length() - 1);
+  }
+}
+
+/*
+ * Display the time and initials.
+ * The time is left justified and the initials are right justified.
+ */
+void displayTimeAndInitials() {
+  int spaceCount = 16 - strTime.length() - 2;
+  String strSpace = "";
+  for (int i = 0; i < spaceCount; i++) {
+    strSpace += " ";
+  }
+  
+  String strLine = strTime + strSpace + "PK";
+  mySerial.print(strLine);
+  Serial.println("Time: " + strTime);   // console debug
+}
+
+/*
+ * Get time left in DD:HH:MM:SS format.
+ * @param daysLeft - integer number of days remaining in countdown.
+ * @return String time left in DD:HH:MM:SS format.
+ */
 String getClockTime(int daysLeft) {
   // calc seconds left
   double s = seconds;
@@ -186,7 +186,14 @@ String getClockTime(int daysLeft) {
   return formateClockTime(daysLeft, h, m, s);
 }
 
-// format time in DD:HH:MM:SS
+/*
+ * Format time in DD:HH:MM:SS.
+ * @param days - integer number of days.
+ * @param hours - integer number of hours.
+ * @param minutes - integer number of minutes.
+ * @param seconds - integer number of seconds.
+ * @return String time in DD:HH:MM:SS format.
+ */
 String formateClockTime(int days, int hours, int minutes, int seconds) {
   return printDigits(days, true) + printDigits(hours, true) + printDigits(minutes, true) + printDigits(seconds, false);
 }
@@ -194,9 +201,9 @@ String formateClockTime(int days, int hours, int minutes, int seconds) {
 /*
  * Print out digits appending necessary leading zero's and colons.
  *
- * digits - integer digits to print
- * bColon - True to include a trailing colon, false to not
- * return String representation of digits
+ * @param digits - integer digits to print
+ * @param bColon - true to include a trailing colon, false to not
+ * @return String representation of digits
  */
 String printDigits(int digits, boolean bColon) {
   String s;
@@ -210,19 +217,22 @@ String printDigits(int digits, boolean bColon) {
   return s;
 }
 
-// Timer is done.
+// Setup time to count.
+void setupTime()
+{
+  seconds = (hMax * 60 * 60) + (mMax * 60) + sMax;   // seconds left
+  days = 0;                                          // days elapsed 
+}
+
+// When the countdown finishes.
 void onTimerEnd()
 {
     // disable timers
     myTimer.disable(timerId2);
     mySerial.write(12);                   // clear
     bTimerDone = true;
-}
-
-// Setup time to count.
-void setupTime()
-{
-  seconds = (hMax * 60 * 60) + (mMax * 60) + sMax;   // seconds left
-  days = 0;                                          // days elapsed 
+    
+    // display time of zero: 00:00:00:00
+    strTime = formateClockTime(0, 0, 0, 0);
 }
 
