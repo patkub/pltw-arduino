@@ -82,13 +82,11 @@ void updateClock() {
    return; 
   }
   
-  seconds--;  // update seconds
-  
   if (seconds <= 0)
   {
     // a day has passed, increment day and reset seconds
     days++;
-    seconds = secDay;    
+    seconds = secDay - 1;    
   }
   
   // calc days left
@@ -99,6 +97,9 @@ void updateClock() {
     // timer done
     onTimerEnd();
   }
+  
+  // update seconds
+  seconds--;
 }
 
 // Flash onboard LED.
