@@ -3,6 +3,17 @@ Arduino
 
 Arduino code
 
+| Item                         | Description                                                   |
+|------------------------------|---------------------------------------------------------------|
+| Accelerometer Motor          | Change projectile model and attach unusual effect.            |
+| Accelerometer Position       | Hats, Unusuals, Australium, and Killstreak Tiers and Sheens.  |
+| Alternate Blink              | Paint item in slot.                                           |
+| Blink                        | Player perks.                                                 |
+| Micro Servo Pot              | Farm kills on a player. Useful to level up strange weapons.   |
+| Morra Game                   | Modify respawn time per team.                                 |
+| Morra Game                   | Modify respawn time per team.                                 |
+Push Button
+
 <table>
 <thead>
 <tr>
